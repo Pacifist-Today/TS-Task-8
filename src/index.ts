@@ -1,24 +1,7 @@
-//Напишіть функцію isString, яка перевірятиме, чи є передане значення рядком. Потім використовуйте її для звуження типу змінної.
-
-//У вас є масив з елементами різних типів. Напишіть функцію, яка приймає цей масив і фільтрує його так, щоб у підсумку в ньому залишилися тільки рядки.
-//Використовуйте захисника типу для цього завдання.
-
-//У вас є об'єкт, який може містити довільні властивості. Напишіть функцію, яка приймає цей об'єкт і повертає значення однієї з властивостей, якщо воно існує і має певний тип.
-
-//Створіть кілька захисників типу, кожен з яких перевіряє певний аспект об'єкта (наприклад, наявність певної властивості або її тип).
-//Потім напишіть функцію, яка використовує цих захисників у комбінації для звуження типу об'єкта до більш конкретного типу.
-
-//У вас є змінна, яка може бути одного з декількох типів (наприклад, рядок або число).
-//Напишіть функцію, яка приймає цю змінну і виконує довільні операції, специфічні для кожного з типів.
-
-//Створіть захисник типу, який перевірятиме, чи є передане значення функцією.
-//Потім напишіть функцію, яка використовує цей гард для звуження типу змінної і викликає передану функцію, якщо вона існує.
-
-//Створіть класи з ієрархією успадкування і потім напишіть функцію, яка використовує захисник типу для звуження типу об'єктів, що базуються на цій ієрархії.
-
-
 //1
-function isString (smth: unknown): boolean {
+// Напишіть функцію isString, яка перевірятиме, чи є передане значення рядком. Потім використовуйте її для звуження типу змінної.
+
+function isString (smth: unknown): smth is string {
     return typeof smth === 'string'
 }
 
@@ -26,36 +9,28 @@ console.log(isString('singularity'))
 console.log(isString(Infinity))
 console.log(isString(true))
 
-function isString2 (smth: unknown): smth is string {
-    return typeof smth === 'string'
-}
-
-console.log(isString2('singularity'))
-console.log(isString2(Infinity))
-console.log(isString2(true))
-
 
 
 //2
-function stringArray(arr: any[]): string[] {
-    return arr.filter(el => typeof el === 'string')
+// У вас є масив з елементами різних типів. Напишіть функцію, яка приймає цей масив і фільтрує його так, щоб у підсумку в ньому залишилися тільки рядки.
+// Використовуйте захисника типу для цього завдання.
+
+function stringArray(arr: any[]): string[] | string {
+    if (arr.length === 0) return 'empty data'
+    const data = arr.filter(el => typeof el === 'string')
+    return data.length >= 1 ? data : 'unappropriated data'
 }
 
-// function stringArray(arr: unknown[]): string[] {
-//     return arr.filter(el => typeof el === 'string')
-// }
-
-// с (arr: unknown[]) ошибка
-
-// Type 'unknown[]' is not assignable to type 'string[]'.
-//  Type 'unknown' is not assignable to type 'string'
-
-
 console.log(stringArray([1, 'a', 'b', true, {}, 'c']))
+console.log(stringArray([]))
+console.log(stringArray([true]))
 
 
 
 //3
+// У вас є об'єкт, який може містити довільні властивості.
+// Напишіть функцію, яка приймає цей об'єкт і повертає значення однієї з властивостей, якщо воно існує і має певний тип.
+
 function checkingProperty (obj: {[key: string]: any}): string {
     return obj.name && typeof obj.name === 'string'
         ?
@@ -70,6 +45,9 @@ console.log(checkingProperty({born: 1990, gender: 'male'}))
 
 
 //4
+// Створіть кілька захисників типу, кожен з яких перевіряє певний аспект об'єкта (наприклад, наявність певної властивості або її тип).
+// Потім напишіть функцію, яка використовує цих захисників у комбінації для звуження типу об'єкта до більш конкретного типу.
+
 type Tage = {age: number}
 type TisFired = {isFired: boolean}
 type Toccupation = {occupation: string}
@@ -92,7 +70,11 @@ function ordinaryObjectNarrowing(obj: Tage | TisFired | Toccupation): string {
 console.log(ordinaryObjectNarrowing({age: 21}))
 console.log(ordinaryObjectNarrowing({occupation: "Buttons Pusher"}))
 
+
+
 //5
+// У вас є змінна, яка може бути одного з декількох типів (наприклад, рядок або число).
+// Напишіть функцію, яка приймає цю змінну і виконує довільні операції, специфічні для кожного з типів.
 function divideResponsibilities (smth: number | string | boolean): string {
     if (typeof smth === 'number') {
         smth.toFixed(1)
@@ -111,6 +93,9 @@ console.log(divideResponsibilities(51))
 
 
 //6
+// Створіть захисник типу, який перевірятиме, чи є передане значення функцією.
+// Потім напишіть функцію, яка використовує цей гард для звуження типу змінної і викликає передану функцію, якщо вона існує.
+
 type Tfunction = () => {}
 
 function callFunction (func: Tfunction): string {
@@ -128,6 +113,10 @@ console.log(callFunction(functionExample))
 // console.log(callFunction("I'm assure you, it's a function, promise you Typescript")) //error
 
 
+
+//7
+// Створіть класи з ієрархією успадкування і потім напишіть функцію,
+// яка використовує захисник типу для звуження типу об'єктів, що базуються на цій ієрархії.
 
 enum enumOcuppation {
     GUEST = 'guest',
