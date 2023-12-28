@@ -1,8 +1,9 @@
 //1
 // Напишіть функцію isString, яка перевірятиме, чи є передане значення рядком. Потім використовуйте її для звуження типу змінної.
 
-function isString (smth: unknown): smth is string {
+function isString (smth: any): smth is string {
     return typeof smth === 'string'
+    // return String.toString(smth)
 }
 
 console.log(isString('singularity'))
@@ -17,7 +18,7 @@ console.log(isString(true))
 
 function stringArray(arr: any[]): string[] | string {
     if (arr.length === 0) return 'empty data'
-    const data = arr.filter(el => typeof el === 'string')
+    const data = arr.filter(el => isString(el))
     return data.length >= 1 ? data : 'unappropriated data'
 }
 
@@ -31,8 +32,9 @@ console.log(stringArray([true]))
 // У вас є об'єкт, який може містити довільні властивості.
 // Напишіть функцію, яка приймає цей об'єкт і повертає значення однієї з властивостей, якщо воно існує і має певний тип.
 
-function checkingProperty (obj: {[key: string]: any}): string {
-    return obj.name && typeof obj.name === 'string'
+type checkPropObject = {[key: string]: any}
+function checkingProperty (obj: checkPropObject): string {
+    return 'name' in obj && isString(obj.name)
         ?
         obj.name
         :
@@ -52,23 +54,32 @@ type Tage = {age: number}
 type TisFired = {isFired: boolean}
 type Toccupation = {occupation: string}
 
+const isNumber = (arg: any): arg is number => {
+    return typeof arg === 'number'
+    // return Number.isInteger(arg)
+}
+
+const isBoolean = (arg: any): arg is boolean => {
+    return typeof arg === "boolean"
+}
+
 function ordinaryObjectNarrowing(obj: Tage | TisFired | Toccupation): string {
-    if ('age' in obj) {
-        obj.age.toExponential(2)
+    if ('age' in obj && isNumber(obj.age)) {
         return `${obj.age}`
     }
-    else if ('isFired' in obj) {
-        obj.isFired.valueOf()
+    else if ('isFired' in obj && isBoolean(obj.isFired)) {
         return `${obj.isFired}`
     }
-    else {
-        obj.occupation.charAt(5)
+    else if ('occupation' in obj && isString(obj.occupation)) {
         return `${obj.occupation}`
+    } else {
+        return 'Incorrect type or value'
     }
 }
 
 console.log(ordinaryObjectNarrowing({age: 21}))
 console.log(ordinaryObjectNarrowing({occupation: "Buttons Pusher"}))
+// console.log(ordinaryObjectNarrowing({junior: "no needs"}))  error
 
 
 
@@ -76,10 +87,10 @@ console.log(ordinaryObjectNarrowing({occupation: "Buttons Pusher"}))
 // У вас є змінна, яка може бути одного з декількох типів (наприклад, рядок або число).
 // Напишіть функцію, яка приймає цю змінну і виконує довільні операції, специфічні для кожного з типів.
 function divideResponsibilities (smth: number | string | boolean): string {
-    if (typeof smth === 'number') {
+    if (isNumber(smth)) {
         smth.toFixed(1)
         return `I have seen ${smth} times him trying to get job`
-    } else if (typeof smth === 'string') {
+    } else if (isString(smth)) {
         smth.includes('a')
         return `He is lazy ${smth}, what have you been expecting?`
     } else {
@@ -96,18 +107,16 @@ console.log(divideResponsibilities(51))
 // Створіть захисник типу, який перевірятиме, чи є передане значення функцією.
 // Потім напишіть функцію, яка використовує цей гард для звуження типу змінної і викликає передану функцію, якщо вона існує.
 
-type Tfunction = () => {}
+const isFunction = (arg: unknown): arg is Function => {
+    return typeof arg === 'function'
+}
 
-function callFunction (func: Tfunction): string {
-    if (typeof func === 'function') {
-        return functionExample()
-    } else {
-        return "Not today JS fanboy"
-    }
+function callFunction (arg: unknown): string {
+    return isFunction(arg) ? arg() : "Not today JS fanboy"
 }
 
 function functionExample (): string {
-    return "it's definitely a fucntion"
+    return "it's definitely a function"
 }
 console.log(callFunction(functionExample))
 // console.log(callFunction("I'm assure you, it's a function, promise you Typescript")) //error
@@ -153,20 +162,40 @@ class Admin extends Moderator {
     giveModeratorPermissions(): void{}
 }
 
+const isUser = (person: any): person is User => {
+    return person.type === enumOcuppation.USER
+        && person instanceof User
+        && 'login' in person
+}
 
-function indentifyPerson(obj: Guest | User | Moderator | Admin): void {
-    if (obj.type === enumOcuppation.GUEST && obj instanceof Guest) {
-        console.log(obj.type)
-        obj.watchSite()
-    } else if (obj.type === enumOcuppation.USER && obj instanceof User) {
-        console.log(obj.type)
-        obj.login()
-    } else if (obj.type === enumOcuppation.MODERATOR && obj instanceof Moderator) {
-        console.log(obj.type)
-        obj.editInfo()
-    } else if (obj.type === enumOcuppation.ADMIN && obj instanceof Admin) {
-        console.log(obj.type)
-        obj.addSmthNew()
+const isModerator = (person: any): person is Moderator => {
+    return person.type === enumOcuppation.MODERATOR
+        && person instanceof Moderator
+        && 'editInfo' in person
+}
+
+const isAdmin = (person: any): person is Admin => {
+    return person.type === enumOcuppation.ADMIN
+        && person instanceof Admin
+        && 'addSmthNew' in person
+}
+
+function indentifyPerson(person: Guest | User | Moderator | Admin): void {
+    if (isUser(person)) {
+        console.log(person.type)
+        person.login()
+    }
+    else if (isModerator(person)) {
+        console.log(person.type)
+        person.editInfo()
+    }
+    else if (isAdmin(person)) {
+        console.log(person.type)
+        person.addSmthNew()
+    }
+    else {
+        console.log(person.type)
+        person.watchSite()
     }
 }
 
